@@ -31,7 +31,7 @@ class ListaEnlazada:
 
 # Ejemplo de uso
 lista = ListaEnlazada()
-lista.insertar(1)
+lista.insertar(10)
 lista.insertar(20)
 lista.insertar(30)
 lista.insertar(40)
