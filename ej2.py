@@ -1,4 +1,7 @@
-def esta_balanceado(cadena):
+import tkinter as tk
+from tkinter import messagebox
+
+def esta_balanceado(cadena): 
     pila = []
     pares = {')': '(', '}': '{', ']': '['}
 
@@ -12,16 +15,31 @@ def esta_balanceado(cadena):
 
     return len(pila) == 0
 
-# Menú interactivo
-def menu():
-    while True:
-        cadena = input("\nIngresa una cadena para verificar si los paréntesis están balanceados (o escribe 'salir' para terminar): ").strip()
-        if cadena.lower() == 'salir':
-            print("Programa finalizado.")
-            break
-        if esta_balanceado(cadena):
-            print("La cadena tiene los paréntesis balanceados.")
-        else:
-            print("La cadena NO tiene los paréntesis balanceados.")
+def verificar():
+    cadena = entrada.get()
+    if not cadena.strip():
+        messagebox.showwarning("Advertencia", "Por favor, ingresa una cadena.")
+        return
+    if esta_balanceado(cadena):
+        resultado.set("✅ Los paréntesis están balanceados.")
+    else:
+        resultado.set("❌ Los paréntesis NO están balanceados.")
 
-menu()
+# Crear la ventana principal
+ventana = tk.Tk()
+ventana.title("Verificador de Paréntesis Balanceados")
+ventana.geometry("400x200")
+
+# Elementos de la interfaz
+tk.Label(ventana, text="Ingresa la cadena:").pack(pady=5)
+
+entrada = tk.Entry(ventana, width=40)
+entrada.pack(pady=5)
+
+tk.Button(ventana, text="Verificar", command=verificar).pack(pady=10)
+
+resultado = tk.StringVar()
+tk.Label(ventana, textvariable=resultado, font=("Arial", 12)).pack(pady=5)
+
+# Iniciar la aplicación
+ventana.mainloop()

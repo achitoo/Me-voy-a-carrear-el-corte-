@@ -1,21 +1,23 @@
-import os
+import tkinter as tk
+from tkinter import messagebox
 
+# Nodo de la lista doblemente enlazada
 class Cancion:
     def __init__(self, titulo):
         self.titulo = titulo
         self.siguiente = None
         self.anterior = None
 
+# Lista de reproducción
 class ListaReproduccion:
     def __init__(self):
-        self.actual = None
         self.primera = None
         self.ultima = None
+        self.actual = None
 
     def agregar_cancion(self, titulo):
         if not titulo.strip():
-            print("El título no puede estar vacío.")
-            return
+            return "❌ Título vacío"
         nueva = Cancion(titulo.strip())
         if not self.primera:
             self.primera = self.ultima = self.actual = nueva
@@ -23,15 +25,9 @@ class ListaReproduccion:
             self.ultima.siguiente = nueva
             nueva.anterior = self.ultima
             self.ultima = nueva
-        print(f"Canción agregada: {titulo.strip()}")
+        return f"✅ Canción agregada: {titulo}"
 
     def eliminar_cancion(self, titulo):
-        if not self.primera:
-            print("La lista está vacía.")
-            return
-        if not titulo.strip():
-            print("El título no puede estar vacío.")
-            return
         temp = self.primera
         while temp:
             if temp.titulo.lower() == titulo.lower():
@@ -45,80 +41,95 @@ class ListaReproduccion:
                     self.ultima = temp.anterior
                 if self.actual == temp:
                     self.actual = temp.siguiente or temp.anterior
-                print(f"✅ Canción eliminada: {titulo}")
-                return
+                return f"✅ Canción eliminada: {titulo}"
             temp = temp.siguiente
-        print("Canción no encontrada.")
+        return "❌ Canción no encontrada"
 
     def siguiente_cancion(self):
-        if not self.actual:
-            print("No hay canciones en la lista.")
-        elif self.actual.siguiente:
+        if self.actual and self.actual.siguiente:
             self.actual = self.actual.siguiente
-            print(f"Reproduciendo: {self.actual.titulo}")
-        else:
-            print("Ya estás en la última canción.")
+            return f"▶ Reproduciendo: {self.actual.titulo}"
+        return "ℹ No hay siguiente canción."
 
     def anterior_cancion(self):
-        if not self.actual:
-            print("No hay canciones en la lista.")
-        elif self.actual.anterior:
+        if self.actual and self.actual.anterior:
             self.actual = self.actual.anterior
-            print(f"Reproduciendo: {self.actual.titulo}")
-        else:
-            print("Ya estás en la primera canción.")
+            return f"▶ Reproduciendo: {self.actual.titulo}"
+        return "ℹ No hay canción anterior."
+
+    def mostrar_actual(self):
+        if self.actual:
+            return f"🎵 Actual: {self.actual.titulo}"
+        return "ℹ No hay canción actual."
 
     def mostrar_lista(self):
-        if not self.primera:
-            print("\nLa lista de reproducción está vacía.\n")
-            return
         temp = self.primera
-        print("\nLista de Reproducción:")
+        canciones = []
         while temp:
-            marcador = "->" if temp == self.actual else "  "
-            print(f"{marcador} {temp.titulo}")
+            canciones.append(temp.titulo)
             temp = temp.siguiente
-        print()
+        return canciones if canciones else ["(Lista vacía)"]
 
-def menu():
-    playlist = ListaReproduccion()
-    while True:
-        print("\n--- MENÚ ---")
-        print("1. Agregar canción")
-        print("2. Eliminar canción")
-        print("3. Reproducir siguiente canción")
-        print("4. Reproducir canción anterior")
-        print("5. Mostrar lista de reproducción")
-        print("6. Salir")
+# Interfaz gráfica con Tkinter
+class Interfaz:
+    def __init__(self, root):
+        self.lista = ListaReproduccion()
+        self.root = root
+        self.root.title("🎧 Lista de Reproducción")
+        self.root.geometry("400x400")
 
-        opcion = input("Elige una opción (1-6): ").strip()
+        # Entrada
+        self.entry = tk.Entry(root, width=30)
+        self.entry.pack(pady=10)
 
-        if opcion == "1":
-            titulo = input("Ingresa el título de la canción: ")
-            playlist.agregar_cancion(titulo)
-            input("Presiona Enter para continuar...")
-            os.system('cls' if os.name == 'nt' else 'clear')
-        elif opcion == "2":
-            titulo = input("Ingresa el título de la canción a eliminar: ")
-            playlist.eliminar_cancion(titulo)
-            input("Presiona Enter para continuar...")
-            os.system('cls' if os.name == 'nt' else 'clear')
-        elif opcion == "3":
-            playlist.siguiente_cancion()
-            input("Presiona Enter para continuar...")
-            os.system('cls' if os.name == 'nt' else 'clear')
-        elif opcion == "4":
-            playlist.anterior_cancion()
-            input("Presiona Enter para continuar...")
-            os.system('cls' if os.name == 'nt' else 'clear')
-        elif opcion == "5":
-            playlist.mostrar_lista()
-            input("Presiona Enter para continuar...")
-            os.system('cls' if os.name == 'nt' else 'clear')
-        elif opcion == "6":
-            print("¡Hasta luego!")
-            break
-        else:
-            print("Opción no válida. Ingresa un número del 1 al 6.")
+        # Botones
+        botones = [
+            ("Agregar canción", self.agregar),
+            ("Eliminar canción", self.eliminar),
+            ("Siguiente", self.siguiente),
+            ("Anterior", self.anterior),
+            ("Mostrar actual", self.actual),
+            ("Mostrar lista", self.mostrar_lista)
+        ]
 
-menu()
+        for texto, comando in botones:
+            tk.Button(root, text=texto, command=comando, width=30).pack(pady=2)
+
+        # Área de salida
+        self.salida = tk.Listbox(root, width=50, height=10)
+        self.salida.pack(pady=10)
+
+    def agregar(self):
+        titulo = self.entry.get()
+        resultado = self.lista.agregar_cancion(titulo)
+        messagebox.showinfo("Agregar", resultado)
+        self.entry.delete(0, tk.END)
+
+    def eliminar(self):
+        titulo = self.entry.get()
+        resultado = self.lista.eliminar_cancion(titulo)
+        messagebox.showinfo("Eliminar", resultado)
+        self.entry.delete(0, tk.END)
+
+    def siguiente(self):
+        resultado = self.lista.siguiente_cancion()
+        messagebox.showinfo("Siguiente", resultado)
+
+    def anterior(self):
+        resultado = self.lista.anterior_cancion()
+        messagebox.showinfo("Anterior", resultado)
+
+    def actual(self):
+        resultado = self.lista.mostrar_actual()
+        messagebox.showinfo("Actual", resultado)
+
+    def mostrar_lista(self):
+        self.salida.delete(0, tk.END)
+        for cancion in self.lista.mostrar_lista():
+            self.salida.insert(tk.END, cancion)
+
+# Ejecutar GUI
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = Interfaz(root)
+    root.mainloop()

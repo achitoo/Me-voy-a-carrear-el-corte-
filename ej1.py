@@ -1,22 +1,27 @@
-#o	Ejercicio #1: Inversión de palabras en una frase. 
-#   Desarrolle un programa que utilice una pila para invertir el orden de las palabras
-#   en una frase dada.
-#   Por ejemplo, la frase "Hola mundo desde UAM" debería invertirse a "UAM desde mundo Hola".
+import tkinter as tk
+from tkinter import messagebox
 
 def invertir_frase():
-    # Pedir al usuario que ingrese una oración
-    frase = input("Ingresa una oración: ")
+    frase = entrada.get()
+    if not frase.strip():
+        messagebox.showwarning("Error", "¡Ingresa una frase primero!")
+        return
     
-    # Dividir la oración en palabras y almacenarlas en una pila
     pila = frase.split()
-    
-    # Extraer las palabras desde la pila para invertir el orden
-    frase_invertida = []
-    while pila:
-        frase_invertida.append(pila.pop())  # Sacamos cada palabra en orden inverso
-    
-    # Mostrar el resultado al usuario
-    print("Oración invertida:", " ".join(frase_invertida))
+    frase_invertida = " ".join([pila.pop() for _ in range(len(pila))])
+    resultado.config(text=f"Frase invertida: {frase_invertida}")
 
-# Ejecutar la función
-invertir_frase()
+# Crear ventana
+ventana = tk.Tk()
+ventana.title("Inversor de Frases")
+
+# Widgets
+tk.Label(ventana, text="Ingresa una frase:").pack(pady=5)
+entrada = tk.Entry(ventana, width=50)
+entrada.pack(pady=5)
+
+tk.Button(ventana, text="Invertir", command=invertir_frase).pack(pady=5)
+resultado = tk.Label(ventana, text="", fg="blue")
+resultado.pack(pady=10)
+
+ventana.mainloop()
